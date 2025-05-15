@@ -1,6 +1,6 @@
 # configs/baseline.yaml
 experiment:
-  name: "baseline_resnet18_cifar10"
+  name: "baseline_resnet18_cifar10" #改这里会改变runs中生成的文件夹名
   seed: 42
   device: "cuda:0"
 
@@ -45,13 +45,13 @@ model:
     num_classes: 10
 
 training:
-  epochs: 4
+  epochs: 2
   criterion: "CrossEntropyLoss"
   optimizer:
     type: "SGD"
     lr: 0.1
     momentum: 0.9
-    weight_decay: 5e-4
+    weight_decay: 5.0e-4
   lr_scheduler:
     type: "CosineAnnealingLR"
     T_max: 200

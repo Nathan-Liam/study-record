@@ -11,7 +11,7 @@ from datetime import datetime
 from torch.utils.tensorboard import SummaryWriter
 
 class ConfigParser:
-    def __init__(self, config_path):
+    def __init__(self, config_path, make_run_dir=True):
         with open(config_path) as f:
             self.config = yaml.safe_load(f)
         
@@ -21,18 +21,20 @@ class ConfigParser:
         
         # 自动创建目录
         os.makedirs(self.config['data']['root'], exist_ok=True)
-        self.run_dir = os.path.join(
-            self.config['logging']['save_dir'],
-            f"{self.config['experiment']['name']}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-        )
-        os.makedirs(self.run_dir, exist_ok=True)
+
+        if make_run_dir==True:
+            self.run_dir = os.path.join(
+                self.config['logging']['save_dir'],
+                f"{self.config['experiment']['name']}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+            )
+            os.makedirs(self.run_dir, exist_ok=True)
         
-        # 保存配置副本
-        with open(os.path.join(self.run_dir, 'config.yaml'), 'w') as f:
-            yaml.dump(self.config, f)
+            # 保存配置副本
+            with open(os.path.join(self.run_dir, 'config.yaml'), 'w') as f:
+                yaml.dump(self.config, f)
         
-        # 初始化TensorBoard
-        self.writer = SummaryWriter(os.path.join(self.run_dir, 'logs'))
+            # 初始化TensorBoard
+            self.writer = SummaryWriter(os.path.join(self.run_dir, 'logs'))
 
     def get_data_loaders(self):
         """创建数据加载器"""
@@ -294,7 +296,7 @@ def save_checkpoint(model, optimizer, scheduler, epoch, run_dir, is_best=False):
         'scheduler': scheduler.state_dict()
     }
     
-    filename = os.path.join(run_dir, 'checkpoint.pth')
+    filename = os.path.join(run_dir, f'checkpoint_epoch{epoch}.pth')
     torch.save(state, filename)
     
     if is_best:
@@ -336,8 +338,6 @@ def main():
         if epoch % cfg.config['logging']['save_interval'] == 0 or epoch == cfg.config['training']['epochs']:
             save_checkpoint(model, optimizer, scheduler, epoch, cfg.run_dir, is_best)
     
-    # 保存最终模型
-    torch.save(model.state_dict(), os.path.join(cfg.run_dir, 'model_final.pth'))
     
     # 保存指标
     metrics = {

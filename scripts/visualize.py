@@ -7,7 +7,7 @@ from train import ConfigParser, ResNet18, ResidualBlock
 
 def visualize_predictions(config_path, checkpoint_path, num_images=9):
     # 初始化配置
-    cfg = ConfigParser(config_path)
+    cfg = ConfigParser(config_path,make_run_dir=False)
     device = torch.device(cfg.config['experiment']['device'] if torch.cuda.is_available() else "cpu")
     
     # 初始化模型
