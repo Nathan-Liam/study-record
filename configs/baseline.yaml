@@ -1,0 +1,62 @@
+# configs/baseline.yaml
+experiment:
+  name: "baseline_resnet18_cifar10"
+  seed: 42
+  device: "cuda:0"
+
+data:
+  dataset: "CIFAR10"
+  root: "./data"
+  batch_size:
+    train: 128
+    test: 100
+  num_workers: 2
+  train_transform:
+    RandomCrop:
+      size: 32
+      padding: 4
+    RandomHorizontalFlip: true
+    RandomRotation: 15
+    ColorJitter:
+      brightness: 0.2
+      contrast: 0.2
+      saturation: 0.2
+      hue: 0.1
+    RandomAffine:
+      degrees: 0
+      translate: [0.1, 0.1]
+      scale: [0.9, 1.1]
+    Normalize:
+      mean: [0.4914, 0.4822, 0.4465]
+      std: [0.2023, 0.1994, 0.2010]
+    RandomErasing:
+      p: 0.2
+      scale: [0.02, 0.2]
+  test_transform:
+    Normalize:
+      mean: [0.4914, 0.4822, 0.4465]
+      std: [0.2023, 0.1994, 0.2010]
+
+model:
+  type: "ResNet18"
+  params:
+    block_type: "ResidualBlock"
+    num_blocks: [2, 2, 2, 2]
+    num_classes: 10
+
+training:
+  epochs: 4
+  criterion: "CrossEntropyLoss"
+  optimizer:
+    type: "SGD"
+    lr: 0.1
+    momentum: 0.9
+    weight_decay: 5e-4
+  lr_scheduler:
+    type: "CosineAnnealingLR"
+    T_max: 200
+
+logging:
+  save_dir: "./runs"
+  save_interval: 10
+  visualize: true
