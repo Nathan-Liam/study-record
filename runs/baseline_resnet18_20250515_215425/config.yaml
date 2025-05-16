@@ -1,0 +1,79 @@
+data:
+  batch_size:
+    test: 100
+    train: 512
+  dataset: CIFAR10
+  num_workers: 8
+  root: ./data
+  test_transform:
+    Normalize:
+      mean:
+      - 0.4914
+      - 0.4822
+      - 0.4465
+      std:
+      - 0.2023
+      - 0.1994
+      - 0.201
+  train_transform:
+    ColorJitter:
+      brightness: 0.2
+      contrast: 0.2
+      hue: 0.1
+      saturation: 0.2
+    Normalize:
+      mean:
+      - 0.4914
+      - 0.4822
+      - 0.4465
+      std:
+      - 0.2023
+      - 0.1994
+      - 0.201
+    RandomAffine:
+      degrees: 0
+      scale:
+      - 0.9
+      - 1.1
+      translate:
+      - 0.1
+      - 0.1
+    RandomCrop:
+      padding: 4
+      size: 32
+    RandomErasing:
+      p: 0.2
+      scale:
+      - 0.02
+      - 0.2
+    RandomHorizontalFlip: true
+    RandomRotation: 15
+experiment:
+  device: cuda:0
+  name: baseline_resnet18
+  seed: 42
+logging:
+  save_dir: ./runs
+  save_interval: 10
+  visualize: true
+model:
+  params:
+    block_type: ResidualBlock
+    num_blocks:
+    - 2
+    - 2
+    - 2
+    - 2
+    num_classes: 10
+  type: ResNet18
+training:
+  criterion: CrossEntropyLoss
+  epochs: 100
+  lr_scheduler:
+    T_max: 100
+    type: CosineAnnealingLR
+  optimizer:
+    lr: 0.1
+    momentum: 0.9
+    type: SGD
+    weight_decay: 0.0005
