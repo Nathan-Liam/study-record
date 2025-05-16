@@ -1,6 +1,6 @@
 # configs/baseline.yaml
 experiment:
-  name: "baseline_resnet18_cifar10" #改这里会改变runs中生成的文件夹名
+  name: "baseline_resnet18_cifar10" # runs./name
   seed: 42
   device: "cuda:0"
 
@@ -38,25 +38,43 @@ data:
       std: [0.2023, 0.1994, 0.2010]
 
 model:
-  type: "ResNet18"
+  type: "ResNet18"  # Can be "ResNet18" or "VGG11"/"VGG13"/"VGG16"/"VGG19"
   params:
+    # ResNet
     block_type: "ResidualBlock"
     num_blocks: [2, 2, 2, 2]
     num_classes: 10
+    # VGG
+    vgg_type: "VGG16"  # Can be: VGG11, VGG13, VGG16, VGG19
 
 training:
-  epochs: 2
+  epochs: 1
   criterion: "CrossEntropyLoss"
   optimizer:
-    type: "SGD"
+    type: "SGD"  # Can be: SGD, Adam, RMSprop, Adagrad
     lr: 0.1
-    momentum: 0.9
+    momentum: 0.9      # For SGD
     weight_decay: 5.0e-4
+    beta1: 0.9         # For Adam
+    beta2: 0.999       # For Adam
+    alpha: 0.99        # For RMSprop
+    eps: 1.0e-8          # For Adam/RMSprop
   lr_scheduler:
-    type: "CosineAnnealingLR"
-    T_max: 200
+    type: "CosineAnnealingLR"  # Can be: CosineAnnealingLR, StepLR, ReduceLROnPlateau
+    T_max: 100                 # For CosineAnnealingLR
+    step_size: 30              # For StepLR
+    gamma: 0.1                 # For StepLR/ReduceLROnPlateau
+    patience: 7               # For ReduceLROnPlateau
+    factor: 0.1                # For ReduceLROnPlateau
+    threshold: 1.0e-4            # For ReduceLROnPlateau
+    min_lr: 1.0e-6               # For ReduceLROnPlateau
 
 logging:
   save_dir: "./runs"
-  save_interval: 10
+  save_interval: 50
   visualize: true
+
+# tensorboard --logdir=<directory_name>
+
+# python scripts/train.py --config configs/baseline.yaml
+# python scripts/visualize.py --config configs/baseline.yaml --checkpoint runs/baseline_20231115/checkpoint.pth
